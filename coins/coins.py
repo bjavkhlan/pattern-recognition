@@ -35,7 +35,7 @@ th = 0
 for i in range(len(imgsrc)):	
 	for j in range(len(imgsrc[0])):
 		th += imgsrc[i][j]
-                th /= len(imgsrc)*len(imgsrc[0])
+th /= len(imgsrc)*len(imgsrc[0])
 
 
 bw = np.zeros( (len(imgsrc), len(imgsrc[0])) )

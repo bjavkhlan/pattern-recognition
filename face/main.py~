@@ -1,0 +1,90 @@
+#from PIL import Image, ImageEnhance
+import glob
+import math
+import numpy as np
+from numpy import linalg
+from scipy import ndimage
+from scipy import misc
+import matplotlib.pyplot as plt
+from skimage import io
+from skimage import exposure
+import random
+
+filepath = './Lab4/pie 10/pie 10/*.bmp'
+
+data = []
+label = []
+#images = []
+for filename in glob.glob(filepath):
+    image = misc.imread(filename, mode='L')
+    '''
+    Resize 
+    '''
+    image = misc.imresize(image, [50, 50])
+    '''
+    Histogram Equalization
+    '''
+    image = exposure.equalize_hist(image)
+    lbl = filename[len(filename)-12]+filename[len(filename)-11]
+    lbl = int(lbl)-55
+    vector = []
+    for row in image:
+        for dot in row:
+           vector.append(1.0*dot/255)
+    data.append(vector)
+    label.append(lbl)
+    #images.append(image)
+'''
+mean = np.zeros(len(data[0]))
+for i in range(len(data)):
+    for j in range(len(data[i])):
+        mean[j] += data[i][j]
+num = len(data[0])
+for i in range(len(mean)):
+    mean[i] /= num
+'''
+'''
+covar = np.zeros([len(data), len(data[0])])
+for i in range(len(data)):
+    for j in range(len(data[i])):
+        covar[i][j] = data[i][j]-mean[j]
+'''
+
+covar = np.cov(np.transpose(data))
+[eigval, eigvec] = linalg.eig(covar)
+
+
+idx = eigval.argsort()[::-1]   
+eigval = eigval[idx]
+eigvec = eigvec[:,idx]
+
+neweig = np.zeros([len(eigvec), 50])
+for i in range(len(neweig)):
+    for j in range(len(neweig[i])):
+        neweig[i][j] = eigvec[i][j]
+newData = np.dot(data, neweig)
+print(len(newData), len(newData[0]))
+
+label = np.array(label)
+idx = label.argsort()[::-1]
+label = label[idx]
+newData = newData[idx, :]
+
+
+
+test = []
+train = []
+
+for i in range(15):
+    idx = int(random.random()*3)+1
+    
+
+'''
+idx = 1
+for img in images:
+    temp = plt.figure(idx)
+    idx += 1
+    plt.imshow(img, cmap='gray')
+    temp.show()
+'''
+    
